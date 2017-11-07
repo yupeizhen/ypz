@@ -99,6 +99,9 @@
 					$('#list .time').eq(i).text(his[i].time);
 					$('.date').removeClass('hide').find('.label').addClass('hide');
 					$('.time').unbind();
+					if(his[i].flag == true){
+						$('#list .title').eq(i).css('color','red');
+					}
 				}
 			}
 		}
@@ -131,7 +134,8 @@
 				for(var i=0; i<list.length; i++){
 					storageList.push({
 						title: list[i].value,
-						time : $(time[i]).text()
+						time : $(time[i]).text(),
+						flag : false
 					});
 
 				}
@@ -178,14 +182,17 @@
 		function alarmClock(){
 			var clock = setInterval(function(){
 				var date = getNowFormatDate(),
-					storage = JSON.parse(localStorage.getItem('list')) || '';;
+					info = $('#list .info'),
+					storage = JSON.parse(localStorage.getItem('list')) || '';
 				for(var i=0; i<storage.length; i++){
-					var sTime = storage[i].time;
+					var sTime = storage[i].time,
+						clockTitle = $(info).find('.title').eq(i);
 					if(date == sTime){
-						console.log('提醒事项：'+ storage[i].title);
+						$(clockTitle).css('color','red');
+						console.log('提醒事项：'+ $(clockTitle).val());
 					}
 				}
-			},1000);
+			},60000);
 			
 		}
 
