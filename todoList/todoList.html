@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>todo list</title>
+	<script src="js/jquery-1.11.1.min.js"></script>
+	<script type="text/javascript" src="js/date.js" ></script>
+	<script type="text/javascript" src="js/iscroll.js" ></script>
+	<link href="css/date.css" rel="stylesheet" type="text/css" />
+	<style>
+		.flexbox {
+		    display: -webkit-box;
+		    display: -webkit-flex;
+		    display: -ms-flexbox;
+		    display: flex;
+		    box-sizing: border-box;
+		    -webkit-box-sizing: border-box;
+		}
+		.flex {
+		    display: block;
+		    -webkit-box-flex: 1;
+		    -webkit-flex: 1;
+		    -ms-flex: 1;
+		    flex: 1;
+		}
+		input{
+			display: inline-block;
+			border:0;
+			width:100%;
+			outline: none;
+		}
+		.list{
+			width:300px;
+		}
+		.list li{
+			border-bottom:1px solid #ededed;
+			padding:10px 0;
+		}
+		.title{
+			font-size: 16px;
+		}
+		.minus{
+			display: inline-block;
+		    width: 15px;
+		    height: 15px;
+		    background-color: red;
+		    border-radius: 100%;
+		    -webkit-border-radius: 100%;
+		    color: #fff;
+		    vertical-align: middle;
+		    margin-right: 10px;
+		    line-height: 15px;
+    		font-size: 19px;
+    		cursor: pointer;
+		}
+		.info{
+			display: inline-block;
+		    width: 80%;
+		}
+		.hide{
+			display: none !important;
+		}
+	</style>
+</head>
+<body>
+	<div style="padding:20px;">
+		<div>
+			<button id="add">添加</button> <button id="adit">编辑</button> <button id="save">保存</button>
+		</div>
+		<div class="list">
+			<ul id="list">
+				
+			</ul>
+		</div>
+		<div id="datePlugin"></div>
+	</div>
+
+	<script>
+		$(function(){
+			init();
+		});
+
+		var listLi = '<li class="flexbox">\
+						<i class="minus hide">-</i>\
+						<div class="info flex">\
+							<input type="text" class="title">\
+							<div class="flexbox date hide"><span class="label">指定时间提醒：</span><span class="time flex"></span></div>\
+						</div>\
+					</li>';
+
+		function init(){		
+			alarmClock();	
+			bind();
+			var his = JSON.parse(localStorage.getItem('list')) || '';
+			if(his.length>0){
+				for(var i=0; i<his.length; i++){
+					$('#list').append(listLi);
+					$('#list .title').eq(i).val(his[i].title);
+					$('#list .time').eq(i).text(his[i].time);
+					$('.date').removeClass('hide').find('.label').addClass('hide');
+					$('.time').unbind();
+				}
+			}
+		}
+
+		function bind(){
+			$('#add').click(function(){
+				$('#list').append(listLi);
+			});
+
+			$('#save').click(function(){
+				storage();
+				var list = $('#list').find('.title');
+				$('.minus').addClass('hide');
+				$('.label').addClass('hide');
+				$('.time').unbind();
+			});
+
+			$('#adit').click(function(){
+				adit();
+			});
+
+			
+		}
+
+		function storage(){
+			var list = $('#list').find('.title'),
+				time = $('#list').find('.time'),
+				storageList = [];
+			if(list.length>0){
+				for(var i=0; i<list.length; i++){
+					storageList.push({
+						title: list[i].value,
+						time : $(time[i]).text()
+					});
+
+				}
+				localStorage.setItem('list', JSON.stringify(storageList));
+				console.log(storageList);
+			}
+
+		}
+
+		function adit(){
+			var list = $('#list').find('.title');
+			if(list.length>0){
+				$('.minus').removeClass('hide');
+				$('.date').removeClass('hide');
+				$('.label').removeClass('hide');
+				$('.minus').click(function(){
+					$(this).parent('li').remove();
+				});
+				$('.time').date({theme:"datetime"});
+			}
+		}
+
+		function getNowFormatDate() {
+		    var date = new Date();
+		    var seperator1 = "-";
+		    var seperator2 = ":";
+		    var month = date.getMonth() + 1;
+		    var strDate = date.getDate();
+		    var strMinu = date.getMinutes();
+		    if (month >= 1 && month <= 9) {
+		        month = "0" + month;
+		    }
+		    // if (strDate >= 0 && strDate <= 9) {
+		    //     strDate = "0" + strDate;
+		    // }
+		    if (strMinu >= 0 && strMinu <= 9) {
+		        strMinu = "0" + strMinu;
+		    }
+		    var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+		            + " " + date.getHours() + seperator2 + strMinu;
+		    return currentdate;
+		}
+
+		function alarmClock(){
+			var clock = setInterval(function(){
+				var date = getNowFormatDate(),
+					storage = JSON.parse(localStorage.getItem('list')) || '';;
+				for(var i=0; i<storage.length; i++){
+					var sTime = storage[i].time;
+					if(date == sTime){
+						console.log('提醒事项：'+ storage[i].title);
+					}
+				}
+			},1000);
+			
+		}
+
+	</script>
+</body>
+</html>
