@@ -57,6 +57,20 @@
 			display: inline-block;
 		    width: 80%;
 		}
+		.finish{
+			display: inline-block;
+		    width: 16px;
+		    height: 16px;
+		    border: 2px solid #ccc;
+		    border-radius: 100%;
+		    -webkit-border-radius: 100%;
+		    margin-right: 10px;
+		    cursor: pointer;
+		}
+		.green{
+			background-color: green;
+		}
+
 		.hide{
 			display: none !important;
 		}
@@ -81,6 +95,7 @@
 		});
 
 		var listLi = '<li class="flexbox">\
+						<i class="finish"></i>\
 						<i class="minus hide">-</i>\
 						<div class="info flex">\
 							<input type="text" class="title">\
@@ -91,6 +106,20 @@
 		function init(){		
 			alarmClock();	
 			bind();
+			render();
+			$('.finish').on('click', function(){
+				var $this = $(this),
+					thisIndex = $this.index();
+					storage = JSON.parse(localStorage.getItem('list')) || '';
+				$this.toggleClass('green');
+				if($this.hasClass('green')){
+					storage[thisIndex].done = true;
+				}
+				localStorage.setItem('list', JSON.stringify(storage));
+			});
+		}
+
+		function render(){
 			var his = JSON.parse(localStorage.getItem('list')) || '';
 			if(his.length>0){
 				for(var i=0; i<his.length; i++){
@@ -99,34 +128,35 @@
 					$('#list .time').eq(i).text(his[i].time);
 					$('.date').removeClass('hide').find('.label').addClass('hide');
 					$('.time').unbind();
-					if(his[i].flag == true){
+					if(his[i].clock && his[i].clock == true){
 						$('#list .title').eq(i).css('color','red');
+					}
+					if(his[i].done && his[i].done == true){
+						$('#list .finish').eq(i).addClass('green');
 					}
 				}
 			}
 		}
 
 		function bind(){
-			$('#add').click(function(){
+			$('#add').on('click', function(){
 				$('#list').append(listLi);
 			});
 
-			$('#save').click(function(){
-				storage();
+			$('#save').on('click', function(){
+				setStorage();
 				var list = $('#list').find('.title');
 				$('.minus').addClass('hide');
 				$('.label').addClass('hide');
 				$('.time').unbind();
 			});
 
-			$('#adit').click(function(){
+			$('#adit').on('click', function(){
 				adit();
 			});
-
-			
 		}
 
-		function storage(){
+		function setStorage(){
 			var list = $('#list').find('.title'),
 				time = $('#list').find('.time'),
 				storageList = [];
@@ -134,8 +164,7 @@
 				for(var i=0; i<list.length; i++){
 					storageList.push({
 						title: list[i].value,
-						time : $(time[i]).text(),
-						flag : false
+						time : $(time[i]).text()
 					});
 
 				}
@@ -151,7 +180,7 @@
 				$('.minus').removeClass('hide');
 				$('.date').removeClass('hide');
 				$('.label').removeClass('hide');
-				$('.minus').click(function(){
+				$('.minus').on('click', function(){
 					$(this).parent('li').remove();
 				});
 				$('.time').date({theme:"datetime"});
@@ -182,16 +211,23 @@
 		function alarmClock(){
 			var clock = setInterval(function(){
 				var date = getNowFormatDate(),
-					info = $('#list .info'),
+					fini = $('#list .finish'),
 					storage = JSON.parse(localStorage.getItem('list')) || '';
 				for(var i=0; i<storage.length; i++){
 					var sTime = storage[i].time,
-						clockTitle = $(info).find('.title').eq(i);
-					if(date == sTime){
-						$(clockTitle).css('color','red');
-						console.log('提醒事项：'+ $(clockTitle).val());
+						clockTitle = $('#list').find('.title').eq(i);
+					if(!$(fini).eq(i).hasClass('green')){
+						if(date == sTime){
+							$(clockTitle).css('color','red');
+							console.log('提醒事项：'+ $(clockTitle).val());
+							storage[i].clock = true;
+						}
+					}else{
+						storage[i].done = true;
 					}
 				}
+				localStorage.setItem('list', JSON.stringify(storage));
+
 			},60000);
 			
 		}
