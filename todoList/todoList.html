@@ -109,14 +109,16 @@
 			render();
 			$('.finish').on('click', function(){
 				var $this = $(this),
-					thisIndex = $this.index();
+					thisIndex = $this.parent('li').index();
 					storage = JSON.parse(localStorage.getItem('list')) || '';
 				$this.toggleClass('green');
 				if($this.hasClass('green')){
 					storage[thisIndex].done = true;
+				}else{
+					storage[thisIndex].done = false;
 				}
 				localStorage.setItem('list', JSON.stringify(storage));
-			});
+			})
 		}
 
 		function render(){
@@ -216,14 +218,12 @@
 				for(var i=0; i<storage.length; i++){
 					var sTime = storage[i].time,
 						clockTitle = $('#list').find('.title').eq(i);
-					if(!$(fini).eq(i).hasClass('green')){
+					if(!$(fini).hasClass('green')){
 						if(date == sTime){
 							$(clockTitle).css('color','red');
 							console.log('提醒事项：'+ $(clockTitle).val());
 							storage[i].clock = true;
 						}
-					}else{
-						storage[i].done = true;
 					}
 				}
 				localStorage.setItem('list', JSON.stringify(storage));
