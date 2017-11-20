@@ -1,0 +1,5 @@
+setItem
+http://localhost:8080/remoteStorage/setItem?key=bb&value=0000
+
+getItem
+http://localhost:8080/remoteStorage/getItem?key=bb
