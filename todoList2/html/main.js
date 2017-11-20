@@ -11,6 +11,34 @@ $(function(){
 						</div>\
 					</li>';
 
+		function getItem(key, success){
+			$.ajax({
+				url: '../remoteStorage/getItem',
+				type: 'GET',
+				data: {
+					key: key
+				},
+				success: function(data){
+					if(success){
+                        success(data);
+                    }
+				}
+			})
+		}
+
+		function setItem(record, success){
+			$.ajax({
+				url: '../remoteStorage/setItem',
+				type: 'GET',
+				data: record,
+				success: function(data){
+					if(success){
+						success(data);
+					}
+				}
+			})
+		}
+
 		function init(){		
 			alarmClock();	
 			bind();
@@ -30,22 +58,24 @@ $(function(){
 		}
 
 		function render(){
-			var his = JSON.parse(localStorage.getItem('list')) || '';
-			if(his.length>0){
-				for(var i=0; i<his.length; i++){
+			getItem('list1', function(res){
+				if(res){
+					var data = eval('('+res.data+')');
+					console.log(data);
 					$('#list').append(listLi);
-					$('#list .title').eq(i).val(his[i].title);
-					$('#list .time').eq(i).text(his[i].time);
+					$('#list .title').val(data.title);
+					$('#list .time').text(data.time);
 					$('.date').removeClass('hide').find('.label').addClass('hide');
 					$('.time').unbind();
-					if(his[i].clock && his[i].clock == true){
-						$('#list .title').eq(i).css('color','red');
+					if(data.clock == 0){
+						$('#list .title').css('color','red');
 					}
-					if(his[i].done && his[i].done == true){
-						$('#list .finish').eq(i).addClass('green');
+					if(data.done == 0){
+						$('#list .finish').addClass('green');
 					}
 				}
-			}
+				
+			});
 		}
 
 		function bind(){
@@ -68,18 +98,25 @@ $(function(){
 
 		function setStorage(){
 			var list = $('#list').find('.title'),
-				time = $('#list').find('.time'),
-				storageList = [];
+				time = $('#list').find('.time');
 			if(list.length>0){
 				for(var i=0; i<list.length; i++){
+					var storageList = [];
 					storageList.push({
 						title: list[i].value,
-						time : $(time[i]).text()
+						time : $(time[i]).text(),
+						clock: 1,
+						done: 1
 					});
+					var storage = storageList.splice(storageList);
+					setItem({
+						key: 'list'+(i+1),
+						value: storage
+					}, function(){
 
+					});
 				}
-				localStorage.setItem('list', JSON.stringify(storageList));
-				console.log(storageList);
+				
 			}
 
 		}
