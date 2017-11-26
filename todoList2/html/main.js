@@ -11,12 +11,12 @@ $(function(){
 						</div>\
 					</li>';
 
-		function getItem(key, success){
+		function getItem(success){
 			$.ajax({
 				url: '../remoteStorage/getItem',
 				type: 'GET',
 				data: {
-					key: key
+					key: 'list'
 				},
 				success: function(data){
 					if(success){
@@ -43,39 +43,31 @@ $(function(){
 			alarmClock();	
 			bind();
 			render();
-			$('.finish').on('click', function(){
-				var $this = $(this),
-					thisIndex = $this.parent('li').index();
-					storage = JSON.parse(localStorage.getItem('list')) || '';
-				$this.toggleClass('green');
-				if($this.hasClass('green')){
-					storage[thisIndex].done = true;
-				}else{
-					storage[thisIndex].done = false;
-				}
-				localStorage.setItem('list', JSON.stringify(storage));
-			})
 		}
 
 		function render(){
-			getItem('list1', function(res){
+			getItem(function(res){
 				if(res){
 					var data = eval('('+res.data+')');
 					console.log(data);
-					$('#list').append(listLi);
-					$('#list .title').val(data.title);
-					$('#list .time').text(data.time);
-					$('.date').removeClass('hide').find('.label').addClass('hide');
-					$('.time').unbind();
-					if(data.clock == 0){
-						$('#list .title').css('color','red');
-					}
-					if(data.done == 0){
-						$('#list .finish').addClass('green');
+					var dataLi = data.slice(',');
+					for(var i=0; i<dataLi.length; i++){
+						$('#list').append(listLi);
+						var liItem = $('#list li').eq(i);
+						$(liItem).find('.title').val(dataLi[i].title);
+						$(liItem).find('.time').text(dataLi[i].time);
+						$(liItem).find('.date').removeClass('hide').find('.label').addClass('hide');
+						$(liItem).find('.time').unbind();
+						if( dataLi[i].clock == 0){
+							$(liItem).find('.title').addClass('t-red');
+						}
+						if( dataLi[i].done == 0){
+							$(liItem).find('.finish').addClass('green');
+						}
 					}
 				}
-				
 			});
+			
 		}
 
 		function bind(){
@@ -98,25 +90,41 @@ $(function(){
 
 		function setStorage(){
 			var list = $('#list').find('.title'),
-				time = $('#list').find('.time');
+				time = $('#list').find('.time'),
+				fini = $('#list').find('.finish');
 			if(list.length>0){
-				for(var i=0; i<list.length; i++){
-					var storageList = [];
-					storageList.push({
-						title: list[i].value,
-						time : $(time[i]).text(),
-						clock: 1,
-						done: 1
-					});
-					var storage = storageList.splice(storageList);
-					setItem({
-						key: 'list'+(i+1),
-						value: storage
-					}, function(){
+				var storageList = [];
+				var date = getNowFormatDate(),
+					li = $('#list li');
 
+				for(var i=0; i<list.length; i++){
+					var d = 1, //是否完成1否0是
+						c = 1; //是否提醒
+					var sTime = $(li).eq(i).find('.time').text();
+					if(date < sTime){
+						$(li).eq(i).find('.title').removeClass('t-red');
+					}
+					if($(fini[i]).hasClass('green')){
+						d = 0;
+					}
+					if($(list[i]).hasClass('t-red')){
+						c = 0;
+					}
+					storageList.push({
+						title : list[i].value,
+						time : $(time[i]).text(),
+						clock : c,
+						done : d
 					});
 				}
-				
+
+				var storage = JSON.stringify(storageList);
+				setItem({
+					key: 'list',
+					value: storage
+				}, function(res){
+
+				});				
 			}
 
 		}
@@ -129,6 +137,9 @@ $(function(){
 				$('.label').removeClass('hide');
 				$('.minus').on('click', function(){
 					$(this).parent('li').remove();
+				});
+				$('.finish').on('click', function(){
+					$(this).toggleClass('green');
 				});
 				$('.time').date({theme:"datetime"});
 			}
@@ -158,21 +169,20 @@ $(function(){
 		function alarmClock(){
 			var clock = setInterval(function(){
 				var date = getNowFormatDate(),
-					fini = $('#list .finish'),
-					storage = JSON.parse(localStorage.getItem('list')) || '';
-				for(var i=0; i<storage.length; i++){
-					var sTime = storage[i].time,
-						clockTitle = $('#list').find('.title').eq(i);
-					if(!$(fini).hasClass('green')){
+					li = $('#list li'),
+					fini = $('#list .finish');
+				for(var i=0; i<li.length; i++){
+					var sTime = $(li).eq(i).find('.time').text(),
+						clockTitle = $(li).eq(i).find('.title');
+					if(!$(li).eq(i).find('.finish').hasClass('green')){
 						if(date == sTime){
-							$(clockTitle).css('color','red');
+							$(clockTitle).addClass('t-red');
 							console.log('提醒事项：'+ $(clockTitle).val());
-							storage[i].clock = true;
 						}
 					}
 				}
-				localStorage.setItem('list', JSON.stringify(storage));
 
+				setStorage();
 			},60000);
 			
 		}
