@@ -178,11 +178,11 @@ $(function(){
 						if(date == sTime){
 							$(clockTitle).addClass('t-red');
 							console.log('提醒事项：'+ $(clockTitle).val());
+							setStorage();
 						}
 					}
 				}
 
-				setStorage();
 			},60000);
 			
 		}
