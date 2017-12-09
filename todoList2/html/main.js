@@ -50,18 +50,19 @@ $(function(){
 				if(res){
 					var data = eval('('+res.data+')');
 					console.log(data);
-					var dataLi = data.slice(',');
-					for(var i=0; i<dataLi.length; i++){
+					// var dataLi = data.slice(',');
+					// for(var i=0; i<dataLi.length; i++){
+					for(var i in data){
 						$('#list').append(listLi);
 						var liItem = $('#list li').eq(i);
-						$(liItem).find('.title').val(dataLi[i].title);
-						$(liItem).find('.time').text(dataLi[i].time);
+						$(liItem).find('.title').val(data[i].title);
+						$(liItem).find('.time').text(data[i].time);
 						$(liItem).find('.date').removeClass('hide').find('.label').addClass('hide');
 						$(liItem).find('.time').unbind();
-						if( dataLi[i].clock == 0){
+						if( data[i].clock == 0){
 							$(liItem).find('.title').addClass('t-red');
 						}
-						if( dataLi[i].done == 0){
+						if( data[i].done == 0){
 							$(liItem).find('.finish').addClass('green');
 						}
 					}
