@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>todo list</title>
+	<script src="jquery-1.11.1.min.js"></script>
+	<script type="text/javascript" src="date.js" ></script>
+	<script type="text/javascript" src="iscroll.js" ></script>
+	<script type="text/javascript" src="vue.js" ></script>
+	<link href="date.css" rel="stylesheet" type="text/css" />
+	<style>
+		.flexbox {
+		    display: -webkit-box;
+		    display: -webkit-flex;
+		    display: -ms-flexbox;
+		    display: flex;
+		    box-sizing: border-box;
+		    -webkit-box-sizing: border-box;
+		}
+		.flex {
+		    display: block;
+		    -webkit-box-flex: 1;
+		    -webkit-flex: 1;
+		    -ms-flex: 1;
+		    flex: 1;
+		}
+		input{
+			display: inline-block;
+			border:0;
+			width:100%;
+			outline: none;
+		}
+		.list{
+			width:300px;
+		}
+		.list li{
+			border-bottom:1px solid #ededed;
+			padding:10px 0;
+		}
+		.title{
+			font-size: 16px;
+		}
+		.minus{
+			display: inline-block;
+		    width: 15px;
+		    height: 15px;
+		    background-color: red;
+		    border-radius: 100%;
+		    -webkit-border-radius: 100%;
+		    color: #fff;
+		    vertical-align: middle;
+		    margin-right: 10px;
+		    line-height: 15px;
+    		font-size: 19px;
+    		cursor: pointer;
+		}
+		.info{
+			display: inline-block;
+		    width: 80%;
+		}
+		.finish{
+			display: inline-block;
+		    width: 16px;
+		    height: 16px;
+		    border: 2px solid #ccc;
+		    border-radius: 100%;
+		    -webkit-border-radius: 100%;
+		    margin-right: 10px;
+		    cursor: pointer;
+		}
+		.green{
+			background-color: green;
+		}
+		.t-red{
+			color:red;
+		}
+
+		.hide{
+			display: none !important;
+		}
+	</style>
+</head>
+<body>
+	<div style="padding:20px;" id="app">
+		<div>
+			<button id="add">添加</button> <button id="adit">编辑</button> <button id="save">保存</button>
+		</div>
+		<div class="list">
+			<ul id="list">
+				<li class="flexbox" v-for="item in list">
+					<i class="finish"></i>
+					<i class="minus hide">-</i>
+					<div class="info flex">
+						<input type="text" class="title" style="color: red;" v-model="item.title" placeholder="item.title">
+						<div class="flexbox date">
+							<span class="label hide">指定时间提醒：</span>
+							<span class="time flex">2017-11-11 15:58</span>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div id="datePlugin"></div>
+	</div>
+
+	<script type="text/javascript" src="app.js" ></script>
+</body>
+</html>
